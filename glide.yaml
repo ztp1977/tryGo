@@ -1,0 +1,3 @@
+package: github.com/ztp1977/tryGo
+import:
+- package: github.com/mholt/binding

@@ -1,0 +1,6 @@
+hash: 0d74bd554feaa35fc9641087ddd54c0fdd4818fd85ed25765d5c559ada5e7e7b
+updated: 2016-10-28T10:34:15.423894589+09:00
+imports:
+- name: github.com/mholt/binding
+  version: 89411c4ffb61f0ebef45d8bdb830103b358ef9fa
+testImports: []
