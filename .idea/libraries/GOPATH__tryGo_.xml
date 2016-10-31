@@ -1,0 +1,34 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;tryGo&gt;">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../.." />
+      <root url="file://$PROJECT_DIR$/../../../sns_server" />
+      <root url="file://$PROJECT_DIR$/../../../gopkg.in" />
+      <root url="file://$PROJECT_DIR$/../../../myapp" />
+      <root url="file://$PROJECT_DIR$/../../../examples" />
+      <root url="file://$PROJECT_DIR$/../../../dm-go.org" />
+      <root url="file://$PROJECT_DIR$/../../../golang.org" />
+      <root url="file://$PROJECT_DIR$/../../../qiniupkg.com" />
+      <root url="file://$PROJECT_DIR$/../../../src" />
+      <root url="file://$PROJECT_DIR$/../../../dm-go" />
+      <root url="file://$PROJECT_DIR$/../../../bitbucket.org" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../.." />
+      <root url="file://$PROJECT_DIR$/../../../sns_server" />
+      <root url="file://$PROJECT_DIR$/../../../gopkg.in" />
+      <root url="file://$PROJECT_DIR$/../../../myapp" />
+      <root url="file://$PROJECT_DIR$/../../../examples" />
+      <root url="file://$PROJECT_DIR$/../../../dm-go.org" />
+      <root url="file://$PROJECT_DIR$/../../../golang.org" />
+      <root url="file://$PROJECT_DIR$/../../../qiniupkg.com" />
+      <root url="file://$PROJECT_DIR$/../../../src" />
+      <root url="file://$PROJECT_DIR$/../../../dm-go" />
+      <root url="file://$PROJECT_DIR$/../../../bitbucket.org" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>
