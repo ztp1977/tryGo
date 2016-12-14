@@ -58,7 +58,7 @@ type CreditCard struct {
 }
 
 func main() {
-	db, err := gorm.Open("mysql", "synphonie:synphonie@/storage?charset=utf8&loc=Local")
+	db, err := gorm.Open("mysql", "root:root@/storage?charset=utf8&loc=Local")
 
 	logrus.SetLevel(logrus.DebugLevel)
 
