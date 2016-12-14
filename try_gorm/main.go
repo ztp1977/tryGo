@@ -7,7 +7,8 @@ _ "github.com/jinzhu/gorm/dialects/mysql"
 	"database/sql"
 	"github.com/Sirupsen/logrus"
 	"reflect"
-	"database/sql/driver"
+	"fmt"
+	"github.com/k0kubun/pp"
 )
 
 type User struct {
@@ -57,7 +58,7 @@ type CreditCard struct {
 }
 
 func main() {
-	db, err := gorm.Open("mysql", "synphonie:synphonie@/storage?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", "synphonie:synphonie@/storage?charset=utf8&loc=Local")
 
 	logrus.SetLevel(logrus.DebugLevel)
 
@@ -110,6 +111,8 @@ func main() {
 		logrus.Debug(columns)
 	}
 
+	pp.Printf("%v", rows)
+
 	for rows.Next()  {
 		var fake string
 		var fack string
@@ -129,19 +132,35 @@ func main() {
 
 	rows, _ = db.Raw("SELECT * FROM users where id > ?", 2).Rows()
 	cols, _ := rows.Columns()
-	var count = 0
-	var vals = make([]driver.Value, len(cols))
+
+	values := make([]sql.RawBytes, len(cols))
+	scanArgs := make([]interface{}, len(values))
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
 	for rows.Next() {
-		// 最初の一行目
-		if count == 0 {
-			logrus.Debug(cols)
+		err = rows.Scan(scanArgs...)
+		if err != nil {
+			panic(err.Error())
 		}
 
-		rows.Next(&vals)
-		logrus.Debug(vals)
-
-		count = count + 1
+		var value string
+		for i, col := range values {
+			pp.Printf("%v", col)
+			// Here we can check if the value is nil (NULL value)
+			if col == nil {
+				value = "NULL"
+			} else {
+				value = string(col)
+			}
+			fmt.Println(cols[i] , ": ", value)
+		}
+		fmt.Println("-----------------------------------")
 	}
+
+	tx, err = db.Begin()
+	rows :=
 
 
 	//// scopeの使い方

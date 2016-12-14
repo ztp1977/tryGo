@@ -11,6 +11,7 @@
       <root url="file://$PROJECT_DIR$/../../../qiniupkg.com" />
       <root url="file://$PROJECT_DIR$/../../../src" />
       <root url="file://$PROJECT_DIR$/../../../dm-go" />
+      <root url="file://$PROJECT_DIR$/../../../ghe.enish.jp" />
       <root url="file://$PROJECT_DIR$/../../../bitbucket.org" />
     </CLASSES>
     <JAVADOC />
@@ -25,6 +26,7 @@
       <root url="file://$PROJECT_DIR$/../../../qiniupkg.com" />
       <root url="file://$PROJECT_DIR$/../../../src" />
       <root url="file://$PROJECT_DIR$/../../../dm-go" />
+      <root url="file://$PROJECT_DIR$/../../../ghe.enish.jp" />
       <root url="file://$PROJECT_DIR$/../../../bitbucket.org" />
     </SOURCES>
     <excluded>
