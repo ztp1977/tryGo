@@ -1,3 +1,10 @@
 package: github.com/ztp1977/tryGo
 import:
 - package: github.com/mholt/binding
+- package: github.com/go-xorm/xorm
+  version: ~0.5.6
+- package: github.com/go-xorm/core
+  version: ~0.5.6
+- package: github.com/lib/pq
+- package: github.com/k0kubun/pp
+  version: ~2.2.0
