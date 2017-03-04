@@ -1,0 +1,40 @@
+hash: b8a245f984b4ba01513bc93a0346fe0a702122a136fa9d0a75bce85b08454b4f
+updated: 2017-03-05T01:34:02.493554204+09:00
+imports:
+- name: github.com/ereyes01/firebase
+  version: 58a59bdf51e2756e4fe519001f6f874cfce57608
+- name: github.com/go-sql-driver/mysql
+  version: a732e14c62dde3285440047bba97581bc472ae18
+- name: github.com/go-xorm/core
+  version: 5bf745d7d163f4380e6c2bba8c4afa60534dd087
+- name: github.com/go-xorm/xorm
+  version: d75356fc733fce7683c6d961fc2aeb16ededc8ef
+- name: github.com/jinzhu/gorm
+  version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
+  subpackages:
+  - dialects/mysql
+- name: github.com/jinzhu/inflection
+  version: 74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff
+- name: github.com/jmoiron/sqlx
+  version: f4076845477b10ac2453a16377a8383467aafe72
+  subpackages:
+  - reflectx
+- name: github.com/k0kubun/pp
+  version: 36d5366f4ec038f9a76dd85c7b29074089bb9b9e
+- name: github.com/lib/pq
+  version: ae8357db35d721c58dcdc911318b55bef6b1b001
+- name: github.com/mattn/go-colorable
+  version: 5411d3eea5978e6cdc258b30de592b60df6aba96
+- name: github.com/mattn/go-isatty
+  version: dda3de49cbfcec471bd7a70e6cc01fcc3ff90109
+- name: github.com/mholt/binding
+  version: 89411c4ffb61f0ebef45d8bdb830103b358ef9fa
+- name: github.com/patrickmn/go-cache
+  version: 1881a9bccb818787f68c52bfba648c6cf34c34fa
+- name: github.com/Sirupsen/logrus
+  version: 4b6ea7319e214d98c938f12692336f7ca9348d6b
+- name: golang.org/x/sys
+  version: 075e574b89e4c2d22f2286a7e2b919519c6f3547
+  subpackages:
+  - unix
+testImports: []

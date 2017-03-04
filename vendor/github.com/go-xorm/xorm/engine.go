@@ -124,47 +124,54 @@ func (engine *Engine) QuoteStr() string {
 }
 
 // Quote Use QuoteStr quote the string sql
-func (engine *Engine) Quote(sql string) string {
-	return engine.quoteTable(sql)
+func (engine *Engine) Quote(value string) string {
+	value = strings.TrimSpace(value)
+	if len(value) == 0 {
+		return value
+	}
+
+	if string(value[0]) == engine.dialect.QuoteStr() || value[0] == '`' {
+		return value
+	}
+
+	value = strings.Replace(value, ".", engine.dialect.QuoteStr()+"."+engine.dialect.QuoteStr(), -1)
+
+	return engine.dialect.QuoteStr() + value + engine.dialect.QuoteStr()
+}
+
+// QuoteTo quotes string and writes into the buffer
+func (engine *Engine) QuoteTo(buf *bytes.Buffer, value string) {
+
+	if buf == nil {
+		return
+	}
+
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return
+	}
+
+	if string(value[0]) == engine.dialect.QuoteStr() || value[0] == '`' {
+		buf.WriteString(value)
+		return
+	}
+
+	value = strings.Replace(value, ".", engine.dialect.QuoteStr()+"."+engine.dialect.QuoteStr(), -1)
+
+	buf.WriteString(engine.dialect.QuoteStr())
+	buf.WriteString(value)
+	buf.WriteString(engine.dialect.QuoteStr())
 }
 
 func (engine *Engine) quote(sql string) string {
 	return engine.dialect.QuoteStr() + sql + engine.dialect.QuoteStr()
 }
 
-func (engine *Engine) quoteColumn(keyName string) string {
-	if len(keyName) == 0 {
-		return keyName
-	}
-
-	keyName = strings.TrimSpace(keyName)
-	keyName = strings.Replace(keyName, "`", "", -1)
-	keyName = strings.Replace(keyName, engine.QuoteStr(), "", -1)
-
-	keyName = strings.Replace(keyName, ",", engine.dialect.QuoteStr()+","+engine.dialect.QuoteStr(), -1)
-	keyName = strings.Replace(keyName, ".", engine.dialect.QuoteStr()+"."+engine.dialect.QuoteStr(), -1)
-
-	return engine.dialect.QuoteStr() + keyName + engine.dialect.QuoteStr()
-}
-
-func (engine *Engine) quoteTable(keyName string) string {
-	keyName = strings.TrimSpace(keyName)
-	if len(keyName) == 0 {
-		return keyName
-	}
-
-	if string(keyName[0]) == engine.dialect.QuoteStr() || keyName[0] == '`' {
-		return keyName
-	}
-
-	keyName = strings.Replace(keyName, ".", engine.dialect.QuoteStr()+"."+engine.dialect.QuoteStr(), -1)
-
-	return engine.dialect.QuoteStr() + keyName + engine.dialect.QuoteStr()
-}
-
 // SqlType will be depracated, please use SQLType instead
+//
+// Deprecated: use SQLType instead
 func (engine *Engine) SqlType(c *core.Column) string {
-	return engine.dialect.SqlType(c)
+	return engine.SQLType(c)
 }
 
 // SQLType A simple wrapper to dialect's core.SqlType method
@@ -290,11 +297,12 @@ func (engine *Engine) logSQLExecutionTime(sqlStr string, args []interface{}, exe
 	return executionBlock()
 }
 
-// Sql will be depracated, please use SQL instead
+// Sql provides raw sql input parameter. When you have a complex SQL statement
+// and cannot use Where, Id, In and etc. Methods to describe, you can use SQL.
+//
+// Deprecated: use SQL instead.
 func (engine *Engine) Sql(querystring string, args ...interface{}) *Session {
-	session := engine.NewSession()
-	session.IsAutoClose = true
-	return session.Sql(querystring, args...)
+	return engine.SQL(querystring, args...)
 }
 
 // SQL method let's you manualy write raw SQL and operate
@@ -303,10 +311,10 @@ func (engine *Engine) Sql(querystring string, args ...interface{}) *Session {
 //         engine.SQL("select * from user").Find(&users)
 //
 // This    code will execute "select * from user" and set the records to users
-func (engine *Engine) SQL(querystring string, args ...interface{}) *Session {
+func (engine *Engine) SQL(query interface{}, args ...interface{}) *Session {
 	session := engine.NewSession()
 	session.IsAutoClose = true
-	return session.SQL(querystring, args...)
+	return session.SQL(query, args...)
 }
 
 // NoAutoTime Default if your struct has "created" or "updated" filed tag, the fields
@@ -353,7 +361,7 @@ func (engine *Engine) DBMetas() ([]*core.Table, error) {
 				if col := table.GetColumn(name); col != nil {
 					col.Indexes[index.Name] = index.Type
 				} else {
-					return nil, fmt.Errorf("Unknown col "+name+" in indexes %v of table", index, table.ColumnsSeq())
+					return nil, fmt.Errorf("Unknown col %s in indexe %v of table %v, columns %v", name, index.Name, table.Name, table.ColumnsSeq())
 				}
 			}
 		}
@@ -431,7 +439,7 @@ func (engine *Engine) dumpAll(w io.Writer, tp ...core.DbType) error {
 	} else {
 		dialect = core.QueryDialect(tp[0])
 		if dialect == nil {
-			return errors.New("Unsupported database type.")
+			return errors.New("Unsupported database type")
 		}
 		dialect.Init(nil, engine.dialect.URI(), "", "")
 	}
@@ -532,7 +540,7 @@ func (engine *Engine) dumpTables(tables []*core.Table, w io.Writer, tp ...core.D
 	} else {
 		dialect = core.QueryDialect(tp[0])
 		if dialect == nil {
-			return errors.New("Unsupported database type.")
+			return errors.New("Unsupported database type")
 		}
 		dialect.Init(nil, engine.dialect.URI(), "", "")
 	}
@@ -641,10 +649,10 @@ func (engine *Engine) Cascade(trueOrFalse ...bool) *Session {
 }
 
 // Where method provide a condition query
-func (engine *Engine) Where(querystring string, args ...interface{}) *Session {
+func (engine *Engine) Where(query interface{}, args ...interface{}) *Session {
 	session := engine.NewSession()
 	session.IsAutoClose = true
-	return session.Where(querystring, args...)
+	return session.Where(query, args...)
 }
 
 // Id will be depracated, please use ID instead
@@ -850,6 +858,7 @@ func (engine *Engine) Having(conditions string) *Session {
 func (engine *Engine) autoMapType(v reflect.Value) *core.Table {
 	t := v.Type()
 	engine.mutex.Lock()
+	defer engine.mutex.Unlock()
 	table, ok := engine.Tables[t]
 	if !ok {
 		table = engine.mapType(v)
@@ -862,7 +871,6 @@ func (engine *Engine) autoMapType(v reflect.Value) *core.Table {
 			}
 		}
 	}
-	engine.mutex.Unlock()
 	return table
 }
 
@@ -1205,12 +1213,26 @@ func (engine *Engine) IsTableExist(beanOrTableName interface{}) (bool, error) {
 }
 
 // IdOf get id from one struct
+//
+// Deprecated: use IDOf instead.
 func (engine *Engine) IdOf(bean interface{}) core.PK {
+	return engine.IDOf(bean)
+}
+
+// IDOf get id from one struct
+func (engine *Engine) IDOf(bean interface{}) core.PK {
 	return engine.IdOfV(reflect.ValueOf(bean))
 }
 
 // IdOfV get id from one value of struct
+//
+// Deprecated: use IDOfV instead.
 func (engine *Engine) IdOfV(rv reflect.Value) core.PK {
+	return engine.IDOfV(rv)
+}
+
+// IDOfV get id from one value of struct
+func (engine *Engine) IDOfV(rv reflect.Value) core.PK {
 	v := reflect.Indirect(rv)
 	table := engine.autoMapType(v)
 	pk := make([]interface{}, len(table.PrimaryKeys))
@@ -1332,16 +1354,13 @@ func (engine *Engine) Sync(beans ...interface{}) error {
 			}
 		} else {
 			for _, col := range table.Columns() {
-				session := engine.NewSession()
-				session.Statement.RefTable = table
-				defer session.Close()
-				isExist, err := session.Engine.dialect.IsColumnExist(tableName, col.Name)
+				isExist, err := engine.dialect.IsColumnExist(tableName, col.Name)
 				if err != nil {
 					return err
 				}
 				if !isExist {
 					session := engine.NewSession()
-					session.Statement.RefTable = table
+					session.Statement.setRefValue(v)
 					defer session.Close()
 					err = session.addColumn(col.Name)
 					if err != nil {
@@ -1352,7 +1371,7 @@ func (engine *Engine) Sync(beans ...interface{}) error {
 
 			for name, index := range table.Indexes {
 				session := engine.NewSession()
-				session.Statement.RefTable = table
+				session.Statement.setRefValue(v)
 				defer session.Close()
 				if index.Type == core.UniqueType {
 					//isExist, err := session.isIndexExist(table.Name, name, true)
@@ -1362,7 +1381,7 @@ func (engine *Engine) Sync(beans ...interface{}) error {
 					}
 					if !isExist {
 						session := engine.NewSession()
-						session.Statement.RefTable = table
+						session.Statement.setRefValue(v)
 						defer session.Close()
 						err = session.addUnique(tableName, name)
 						if err != nil {
@@ -1376,7 +1395,7 @@ func (engine *Engine) Sync(beans ...interface{}) error {
 					}
 					if !isExist {
 						session := engine.NewSession()
-						session.Statement.RefTable = table
+						session.Statement.setRefValue(v)
 						defer session.Close()
 						err = session.addIndex(tableName, name)
 						if err != nil {
