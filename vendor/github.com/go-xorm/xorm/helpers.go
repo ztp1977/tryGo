@@ -207,10 +207,6 @@ func isPKZero(pk core.PK) bool {
 	return false
 }
 
-func equalNoCase(s1, s2 string) bool {
-	return strings.ToLower(s1) == strings.ToLower(s2)
-}
-
 func indexNoCase(s, sep string) int {
 	return strings.Index(strings.ToLower(s), strings.ToLower(sep))
 }
@@ -494,9 +490,8 @@ func genCols(table *core.Table, session *Session, bean interface{}, useCol bool,
 	args := make([]interface{}, 0, len(table.ColumnsSeq()))
 
 	for _, col := range table.Columns() {
-		lColName := strings.ToLower(col.Name)
 		if useCol && !col.IsVersion && !col.IsCreated && !col.IsUpdated {
-			if _, ok := session.Statement.columnMap[lColName]; !ok {
+			if _, ok := getFlagForColumn(session.Statement.columnMap, col); !ok {
 				continue
 			}
 		}
@@ -532,25 +527,26 @@ func genCols(table *core.Table, session *Session, bean interface{}, useCol bool,
 		}
 
 		if session.Statement.ColumnStr != "" {
-			if _, ok := session.Statement.columnMap[lColName]; !ok {
+			if _, ok := getFlagForColumn(session.Statement.columnMap, col); !ok {
 				continue
 			}
 		}
 		if session.Statement.OmitStr != "" {
-			if _, ok := session.Statement.columnMap[lColName]; ok {
+			if _, ok := getFlagForColumn(session.Statement.columnMap, col); ok {
 				continue
 			}
 		}
 
 		// !evalphobia! set fieldValue as nil when column is nullable and zero-value
-		if _, ok := session.Statement.nullableMap[lColName]; ok {
+		if _, ok := getFlagForColumn(session.Statement.nullableMap, col); ok {
 			if col.Nullable && isZero(fieldValue.Interface()) {
 				var nilValue *int
 				fieldValue = reflect.ValueOf(nilValue)
 			}
 		}
 
-		if (col.IsCreated || col.IsUpdated) && session.Statement.UseAutoTime {
+		if (col.IsCreated || col.IsUpdated) && session.Statement.UseAutoTime /*&& isZero(fieldValue.Interface())*/ {
+			// if time is non-empty, then set to auto time
 			val, t := session.Engine.NowTime2(col.SQLType.Name)
 			args = append(args, val)
 
@@ -580,4 +576,24 @@ func genCols(table *core.Table, session *Session, bean interface{}, useCol bool,
 
 func indexName(tableName, idxName string) string {
 	return fmt.Sprintf("IDX_%v_%v", tableName, idxName)
+}
+
+func getFlagForColumn(m map[string]bool, col *core.Column) (val bool, has bool) {
+
+	if len(m) == 0 {
+		return false, false
+	}
+
+	n := len(col.Name)
+
+	for mk := range m {
+		if len(mk) != n {
+			continue
+		}
+		if strings.EqualFold(mk, col.Name) {
+			return m[mk], true
+		}
+	}
+
+	return false, false
 }

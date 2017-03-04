@@ -8,3 +8,4 @@ import:
 - package: github.com/lib/pq
 - package: github.com/k0kubun/pp
   version: ~2.2.0
+- package: github.com/ereyes01/firebase
